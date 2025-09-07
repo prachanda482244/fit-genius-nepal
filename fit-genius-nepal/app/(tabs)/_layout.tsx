@@ -1,55 +1,19 @@
-// app/(tabs)/_layout.tsx
-import { Tabs, useRouter, useSegments } from "expo-router";
+import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import { useAuthStore } from "../../store/auth.store";
-import { useEffect, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
 
-export default function TabLayout() {
-  const { isAuthenticated, checkAuth } = useAuthStore();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
-  const router = useRouter();
-  const segments = useSegments();
-
-  //   useEffect(() => {
-  //     const verifyAuth = async () => {
-  //       const isAuth = await checkAuth();
-  //       setIsCheckingAuth(false);
-
-  //       // if (!isAuth && segments[0] !== "(auth)") {
-  //       //   //   router.replace("/(auth)/login");
-  //       //   router.replace("/");
-  //       // }
-  //     };
-
-  //     verifyAuth();
-  //   }, [segments]);
-
-  //   if (isCheckingAuth) {
-  //     return (
-  //       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-  //         <ActivityIndicator size="large" />
-  //       </View>
-  //     );
-  //   }
-
+export default function TabsLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "#007AFF",
-        headerShown: false,
-      }}
-    >
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{
-          headerShown: false,
           title: "Home",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="home" size={size} color={color} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="workout"
         options={{
@@ -61,11 +25,29 @@ export default function TabLayout() {
       />
 
       <Tabs.Screen
+        name="create"
+        options={{
+          title: "Create",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="add-circle" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="product"
+        options={{
+          title: "Products",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="cart" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: "Profile",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cart" size={size} color={color} />
+            <Ionicons name="person" size={size} color={color} />
           ),
         }}
       />

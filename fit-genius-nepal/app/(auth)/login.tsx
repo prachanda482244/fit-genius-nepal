@@ -1,114 +1,76 @@
-// app/(auth)/login.tsx
-import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Alert } from "react-native";
-import { useAuthStore } from "../../store/auth.store";
-import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import { useNavigation } from "expo-router";
+import React from "react";
+import {
+  View,
+  Text,
+  ImageBackground,
+  Pressable,
+  ScrollView,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const { login, googleLogin, isLoading } = useAuthStore();
-
-  const handleLogin = async () => {
-    if (!email || !password) {
-      Alert.alert("Error", "Please fill all fields");
-      return;
-    }
-
-    const result = await login(email, password);
-
-    if (!result.success) {
-      Alert.alert("Error", result.error);
-    }
-  };
-
-  const handleGoogleLogin = async () => {
-    // Implement Google Sign In logic here
-    // This would use @react-native-google-signin/google-signin
-    Alert.alert("Info", "Google login would be implemented here");
-  };
-
+export default function LoginPage() {
+  const navigate = useNavigation();
   return (
-    <View style={{ flex: 1, padding: 20, justifyContent: "center" }}>
-      <Text
-        style={{
-          fontSize: 24,
-          fontWeight: "bold",
-          marginBottom: 20,
-          textAlign: "center",
-        }}
-      >
-        Login
-      </Text>
+    <SafeAreaView className="flex-1">
+      <ScrollView className="flex-1 bg-neutral-light">
+        <View className="flex-1 justify-center items-center px-6 py-10">
+          {/* Image Header */}
+          <ImageBackground
+            source={{
+              uri: "https://media.istockphoto.com/id/1201921593/photo/3d-render-gym-fitness-center.jpg?s=1024x1024&w=is&k=20&c=dP2edv4oWGoKB1Oo2GDwA9vJAVuloJwLknPldJb4aR0=",
+            }} // replace with your gym image
+            className="w-full h-[560px] rounded-xl overflow-hidden mb-6"
+          >
+            <View className="absolute bottom-4 left-4">
+              <Text className="text-white text-3xl font-heading font-bold">
+                Fitness Hub
+              </Text>
+              <Text className="text-white text-base mt-1">
+                Your ultimate workout companion.
+              </Text>
+            </View>
+          </ImageBackground>
 
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 10,
-          marginBottom: 10,
-          borderRadius: 5,
-        }}
-        autoCapitalize="none"
-        keyboardType="email-address"
-      />
+          {/* Buttons */}
+          <Pressable className="w-full bg-primary py-3 rounded-full mb-4 items-center">
+            <Text className="text-white font-body text-lg">Log In</Text>
+          </Pressable>
 
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={{
-          borderWidth: 1,
-          borderColor: "#ccc",
-          padding: 10,
-          marginBottom: 20,
-          borderRadius: 5,
-        }}
-      />
+          <Pressable
+            className="w-full bg-neutral-light py-3 rounded-full border border-gray-300 mb-6 items-center"
+            onPress={() => navigate.navigate("register")}
+          >
+            <Text className="text-neutral-dark font-body text-lg">
+              Register
+            </Text>
+          </Pressable>
 
-      <TouchableOpacity
-        onPress={handleLogin}
-        disabled={isLoading}
-        style={{
-          backgroundColor: "#007AFF",
-          padding: 15,
-          borderRadius: 5,
-          marginBottom: 10,
-        }}
-      >
-        <Text
-          style={{ color: "white", textAlign: "center", fontWeight: "bold" }}
-        >
-          {isLoading ? "Logging in..." : "Login"}
-        </Text>
-      </TouchableOpacity>
+          {/* Or Separator */}
+          <View className="flex-row items-center w-full mb-6">
+            <View className="flex-1 h-px bg-gray-300" />
+            <Text className="mx-2 text-gray-500">OR</Text>
+            <View className="flex-1 h-px bg-gray-300" />
+          </View>
 
-      <TouchableOpacity
-        onPress={handleGoogleLogin}
-        disabled={isLoading}
-        style={{
-          backgroundColor: "#DB4437",
-          padding: 15,
-          borderRadius: 5,
-          marginBottom: 10,
-        }}
-      >
-        <Text
-          style={{ color: "white", textAlign: "center", fontWeight: "bold" }}
-        >
-          Login with Google
-        </Text>
-      </TouchableOpacity>
+          {/* Google Login */}
+          <Pressable className="w-full gap-2 py-3 rounded-full border border-gray-300 flex-row justify-center items-center mb-6">
+            <Ionicons name="logo-google" size={24} color="#DB4437" />
 
-      <TouchableOpacity onPress={() => router.push("/(auth)/register")}>
-        <Text style={{ textAlign: "center", color: "#007AFF" }}>
-          Don't have an account? Register
-        </Text>
-      </TouchableOpacity>
-    </View>
+            <Text className="text-gray-700 font-body text-lg">
+              Continue with Google
+            </Text>
+          </Pressable>
+
+          {/* Terms */}
+          <Text className="text-gray-400 text-xs text-center px-4">
+            By continuing, you agree to our{" "}
+            <Text className="underline">Terms of Service</Text> and{" "}
+            <Text className="underline">Privacy Policy</Text>.
+          </Text>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
