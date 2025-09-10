@@ -10,7 +10,7 @@ import {
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 
 const { width } = Dimensions.get("window");
 
