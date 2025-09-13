@@ -2,18 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Components
 import ScheduleTab from "@/components/ScheduleTab";
 import WorkoutCreationTab from "@/components/WorkoutCreation";
 
 import AddExerciseModal from "@/components/modal/AddExerciseModal";
 
-// Types
-
-// Predefined plans
+import { getSchedules } from "@/api/schedule";
 import { getWorkouts } from "@/api/workoutApi";
 import CreateWorkoutModal from "@/components/modal/CreateWorkoutModal";
-import { predefinedPlans } from "@/data/predinedWorkout";
 import { WorkoutPlan, WorkoutSection } from "@/types/workoutType";
 
 const CreateWorkout = () => {
@@ -34,40 +30,23 @@ const CreateWorkout = () => {
 
   const getWorkoutsData = async () => {
     const data = await getWorkouts();
+    const schedule = await getSchedules();
+    console.log(schedule, "sche from page");
     setWorkoutData(data);
+    setWorkoutPlans(schedule);
   };
   // Load sample data
   useEffect(() => {
     getWorkoutsData();
-    const loadSampleData = async () => {
-      setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        // Add a sample custom schedule
-        setWorkoutPlans([
-          {
-            id: "my-custom-plan",
-            name: "My Custom Plan",
-            description: "My personalized workout schedule",
-            days: {
-              Monday: ["chest"],
-              Tuesday: ["back"],
-              Wednesday: [],
-              Thursday: ["chest"],
-              Friday: ["back"],
-              Saturday: [],
-              Sunday: [],
-            },
-          },
-        ]);
-
-        setIsLoading(false);
-      }, 1000);
-    };
-
-    loadSampleData();
   }, []);
 
+  const handleWorkoutCreated = (newWorkout: WorkoutSection) => {
+    // Optimistic update
+    setWorkoutData((prev) => [...prev, newWorkout]);
+
+    // Background refetch to confirm
+    getWorkoutsData();
+  };
   return (
     <SafeAreaView className="flex-1">
       <View className="flex-1 bg-gray-50">
@@ -118,7 +97,6 @@ const CreateWorkout = () => {
           />
         ) : (
           <ScheduleTab
-            predefinedPlans={predefinedPlans}
             workoutData={workoutData}
             workoutPlans={workoutPlans}
             setWorkoutPlans={setWorkoutPlans}
@@ -135,6 +113,7 @@ const CreateWorkout = () => {
           workoutData={workoutData}
           setWorkoutData={setWorkoutData}
           setEditingWorkoutId={setEditingWorkoutId}
+          onWorkoutCreated={handleWorkoutCreated}
         />
 
         <AddExerciseModal

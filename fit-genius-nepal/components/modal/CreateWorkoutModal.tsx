@@ -1,6 +1,5 @@
 import { createWorkout } from "@/api/workoutApi";
 import { WorkoutSection } from "@/types/workoutType";
-import { showToast } from "@/utils/ShowToast";
 import { Ionicons } from "@expo/vector-icons";
 import Checkbox from "expo-checkbox";
 import React, { useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import Toast from "react-native-toast-message";
 
 interface CreateWorkoutModalProps {
   visible: boolean;
@@ -21,12 +21,14 @@ interface CreateWorkoutModalProps {
   workoutData: WorkoutSection[];
   setWorkoutData: React.Dispatch<React.SetStateAction<WorkoutSection[]>>;
   setEditingWorkoutId: React.Dispatch<React.SetStateAction<string | null>>;
+  onWorkoutCreated: any;
 }
 
 const CreateWorkoutModal: React.FC<CreateWorkoutModalProps> = ({
   visible,
   onClose,
   editingWorkoutId,
+  onWorkoutCreated,
   workoutData,
   setWorkoutData,
   setEditingWorkoutId,
@@ -68,14 +70,33 @@ const CreateWorkoutModal: React.FC<CreateWorkoutModalProps> = ({
       isPublic,
       difficulty,
     };
+    setWorkoutData((prev: any) => [...prev, workoutData]);
+
     try {
       const data = await createWorkout(workoutData);
+
+      console.log(data, "data");
       if (data?.status === 201) {
-        showToast(data?.message, "success", "Workout Create");
+        Toast.show({
+          type: "success",
+          text1: "Workout Created",
+          text2: data?.message,
+          //   position: "bottom",
+        });
+        // if (onWorkoutCreated) {
+        //   onWorkoutCreated(data.workout); // assuming API returns { workout: {...} }
+        // }
       }
     } catch (error: any) {
-      showToast(error?.message, "error", "Failed");
+      console.log(error, "error");
+      Toast.show({
+        type: "error",
+        text1: "Workout Creation",
+        text2: error?.message || "Failed to create workout",
+        //   position: "bottom",
+      });
     }
+    onClose();
   };
 
   return (

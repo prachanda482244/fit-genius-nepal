@@ -77,6 +77,7 @@ const WorkoutCreationTab: React.FC<WorkoutCreationTabProps> = ({
 
   // Function to edit an exercise
   const editExercise = (workoutId: string, exerciseId: string) => {
+    console.log("edit");
     setEditingExerciseId(exerciseId);
     setSelectedWorkoutSection(workoutId);
     setShowAddExerciseModal(true);
@@ -183,32 +184,26 @@ const WorkoutCreationTab: React.FC<WorkoutCreationTabProps> = ({
 
               {/* Exercises List (shown when expanded) */}
               {expandedSections[section._id] && (
-                <View className="border-t border-gray-100">
+                <View className="border-t border-gray-100 ml-4">
                   {section.exercises.map((exercise) => (
                     <Pressable
-                      key={exercise.id}
+                      key={exercise._id}
                       className="flex-row items-center p-3 border-b border-gray-100"
                       android_ripple={{ color: "#f3f4f6" }}
                     >
                       <View className="bg-gray-50 p-2 rounded-full mr-3">
-                        <Ionicons
-                          name={exercise.icon}
-                          size={16}
-                          color="#374151"
-                        />
+                        <Ionicons name="body" size={16} color="#374151" />
                       </View>
                       <View className="flex-1">
                         <Text className="text-gray-800 text-sm font-medium">
                           {exercise.name}
                         </Text>
-                        <Text className="text-gray-500 text-xs">
-                          {exercise.sets} sets × {exercise.reps} reps (
-                          {exercise.weight} lbs)
-                        </Text>
                       </View>
                       <View className="flex-row">
                         <Pressable
-                          onPress={() => editExercise(section._id, exercise.id)}
+                          onPress={() =>
+                            editExercise(section._id, exercise._id)
+                          }
                           className="p-2"
                         >
                           <Ionicons
@@ -219,7 +214,7 @@ const WorkoutCreationTab: React.FC<WorkoutCreationTabProps> = ({
                         </Pressable>
                         <Pressable
                           onPress={() =>
-                            deleteExercise(section._id, exercise.id)
+                            deleteExercise(section._id, exercise._id)
                           }
                           className="p-2"
                         >

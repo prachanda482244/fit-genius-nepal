@@ -101,6 +101,7 @@ export default function LoginPage() {
         router.replace("/(tabs)");
       }
     } catch (error: any) {
+      console.log(error);
       Toast.show({
         type: "error",
         text1: "Login",

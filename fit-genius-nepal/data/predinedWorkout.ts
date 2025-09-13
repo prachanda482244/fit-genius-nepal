@@ -1,6 +1,4 @@
-import { WorkoutPlan } from "../types/workoutType";
-
-export const predefinedPlans: WorkoutPlan[] = [
+export const predefinedPlans = [
   {
     id: "bro-split",
     name: "Bro Split",
@@ -63,12 +61,4 @@ export const predefinedPlans: WorkoutPlan[] = [
   },
 ];
 
-export const daysOfWeek = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
+export const daysOfWeek = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];

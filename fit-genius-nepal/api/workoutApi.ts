@@ -1,3 +1,4 @@
+import { EquipmentType } from "@/types/workoutType";
 import { handleApiError } from "@/utils/errorResponse";
 import api from "./axiosClient";
 
@@ -8,6 +9,15 @@ interface CreateWorkoutPayload {
   description?: string;
   difficulty?: "beginner" | "intermediate" | "advanced";
   isPublic?: boolean;
+}
+
+interface CreateExercisePayload {
+  name: string;
+  description?: string;
+  equipment?: EquipmentType;
+  isPublic?: boolean;
+  workoutImage?: string | null;
+  workoutId?: string;
 }
 export const createWorkout = async (payload: CreateWorkoutPayload) => {
   try {
@@ -23,5 +33,19 @@ export const getWorkouts = async () => {
     const { data } = await api.get(`${API_BASE}/workout`);
     console.log(data, "get wokrouts");
     return data?.data;
-  } catch (error) {}
+  } catch (error) {
+    handleApiError(error);
+  }
+};
+
+export const createExercise = async (payload: CreateExercisePayload) => {
+  try {
+    const { data } = await api.post(
+      `${API_BASE}/exercise/workout/${payload.workoutId}`,
+      payload
+    );
+    return data;
+  } catch (error) {
+    handleApiError(error);
+  }
 };
