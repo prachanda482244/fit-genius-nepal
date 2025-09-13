@@ -1,34 +1,38 @@
-// components/AuthGuard.tsx
-import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
-import { useAuthStore } from "../store/auth.store";
-import { router } from "expo-router";
+import { useAuthStore } from "@/store/auth.store";
+import { Redirect } from "expo-router";
+import { ReactNode } from "react";
+import { ActivityIndicator, View } from "react-native";
 
-export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const [isChecking, setIsChecking] = useState(true);
-  const { isAuthenticated, checkAuth } = useAuthStore();
+interface AuthGuardProps {
+  children: ReactNode;
+  requireAuth?: boolean;
+  fallback?: ReactNode;
+}
 
-  useEffect(() => {
-    const verifyAuth = async () => {
-      const isAuth = await checkAuth();
+export const AuthGuard = ({
+  children,
+  requireAuth = true,
+  fallback = (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <ActivityIndicator size="large" />
+    </View>
+  ),
+}: AuthGuardProps) => {
+  const { accessToken, loading } = useAuthStore();
 
-      if (!isAuth) {
-        router.replace("/(auth)/login");
-      } else {
-        setIsChecking(false);
-      }
-    };
+  // Show loading while Zustand is hydrating or auth is loading
+  if (loading) {
+    return <>{fallback}</>;
+  }
 
-    verifyAuth();
-  }, []);
+  // Redirect based on authentication requirements
+  if (requireAuth && !accessToken) {
+    return <Redirect href="/(auth)/login" />;
+  }
 
-  if (isChecking) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
+  if (!requireAuth && accessToken) {
+    return <Redirect href="/(tabs)" />;
   }
 
   return <>{children}</>;
-}
+};

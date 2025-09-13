@@ -1,15 +1,7 @@
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-  Button,
-} from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import React from "react";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import Toast from "react-native-toast-message";
 const Home = () => {
   return (
@@ -20,7 +12,6 @@ const Home = () => {
         <View className="px-5 pt-5">
           <Text className="text-3xl font-bold text-gray-900">Home</Text>
         </View>
-        <Button title="Login" onPress={() => router.push("/login")} />
         {/* Today's Workout Card */}
         <View className="px-5 mt-6">
           <Text className="text-lg font-semibold text-gray-800 mb-3">

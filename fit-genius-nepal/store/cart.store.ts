@@ -1,111 +1,56 @@
-// store/cart.store.ts
-import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { CartItem } from "../types";
 
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  image: string;
-  quantity: number;
-  type: "buy" | "rent";
-  rentalPeriod?: number; // in days
-}
-
-interface CartState {
+type CartState = {
   items: CartItem[];
-  total: number;
-  addToCart: (item: Omit<CartItem, "quantity">) => void;
-  removeFromCart: (id: string) => void;
-  updateQuantity: (id: string, quantity: number) => void;
+  addItem: (item: CartItem) => void;
+  removeItem: (id: string) => void;
   clearCart: () => void;
-  getCartTotal: () => number;
-}
+  updateQty: (id: string, qty: number) => void;
+  total: () => number;
+};
 
 export const useCartStore = create<CartState>()(
   persist(
     (set, get) => ({
       items: [],
-      total: 0,
 
-      addToCart: (item) => {
+      addItem: (item) =>
         set((state) => {
-          const existingItem = state.items.find((i) => i.id === item.id);
-
-          if (existingItem) {
-            // Update quantity if item already exists
-            const updatedItems = state.items.map((i) =>
-              i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-            );
-
-            const total = updatedItems.reduce(
-              (sum, i) => sum + i.price * i.quantity,
-              0
-            );
-
-            return { items: updatedItems, total };
-          } else {
-            // Add new item with quantity 1
-            const newItem = { ...item, quantity: 1 };
-            const updatedItems = [...state.items, newItem];
-
-            const total = updatedItems.reduce(
-              (sum, i) => sum + i.price * i.quantity,
-              0
-            );
-
-            return { items: updatedItems, total };
+          const existing = state.items.find((i) => i.id === item.id);
+          if (existing) {
+            return {
+              items: state.items.map((i) =>
+                i.id === item.id
+                  ? { ...i, quantity: i.quantity + item.quantity } // ✅ fixed: use quantity
+                  : i
+              ),
+            };
           }
-        });
-      },
+          return { items: [...state.items, item] };
+        }),
 
-      removeFromCart: (id) => {
-        set((state) => {
-          const updatedItems = state.items.filter((i) => i.id !== id);
-          const total = updatedItems.reduce(
-            (sum, i) => sum + i.price * i.quantity,
-            0
-          );
+      removeItem: (id) =>
+        set((s) => ({ items: s.items.filter((i) => i.id !== id) })),
 
-          return { items: updatedItems, total };
-        });
-      },
+      clearCart: () => set({ items: [] }),
 
-      updateQuantity: (id, quantity) => {
-        if (quantity <= 0) {
-          get().removeFromCart(id);
-          return;
-        }
+      updateQty: (id, qty) =>
+        set((s) => ({
+          items: s.items.map((i) =>
+            i.id === id ? { ...i, quantity: qty } : i
+          ),
+        })),
 
-        set((state) => {
-          const updatedItems = state.items.map((i) =>
-            i.id === id ? { ...i, quantity } : i
-          );
-
-          const total = updatedItems.reduce(
-            (sum, i) => sum + i.price * i.quantity,
-            0
-          );
-
-          return { items: updatedItems, total };
-        });
-      },
-
-      clearCart: () => {
-        set({ items: [], total: 0 });
-      },
-
-      getCartTotal: () => {
-        return get().items.reduce(
-          (sum, item) => sum + item.price * item.quantity,
-          0
-        );
+      total: () => {
+        return get().items.reduce((acc, i) => acc + i.price * i.quantity, 0);
       },
     }),
     {
       name: "cart-storage",
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: AsyncStorage, // ✅ correct way
     }
   )
 );

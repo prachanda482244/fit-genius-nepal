@@ -1,9 +1,19 @@
-import { View, Text, ScrollView, Pressable } from "react-native";
-import React from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { logout } from "@/api/authApi";
+import { useAuthStore } from "@/store/auth.store";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import React from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const Profile = () => {
+  const user = useAuthStore((u) => u.user);
+  const clearAuth = useAuthStore((u) => u.clearAuth);
+  const handleLogout = async () => {
+    await logout();
+    clearAuth();
+    router.replace("/login");
+  };
   return (
     <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1">
@@ -12,10 +22,8 @@ const Profile = () => {
           <View className="w-24 h-24 bg-blue-500 rounded-full items-center justify-center mb-4">
             <Text className="text-white text-3xl font-bold">PR</Text>
           </View>
-          <Text className="text-2xl font-bold text-gray-900">
-            Prachanda Rana
-          </Text>
-          <Text className="text-gray-600 mt-1">pralhadrana123@gmail.com</Text>
+          <Text className="text-2xl font-bold text-gray-900">{user?.name}</Text>
+          <Text className="text-gray-600 mt-1">{user?.email}</Text>
         </View>
 
         {/* Divider */}
@@ -66,7 +74,10 @@ const Profile = () => {
         </View>
 
         {/* Logout Button */}
-        <Pressable className="mx-5 my-8 bg-red-500 py-4 rounded-lg items-center">
+        <Pressable
+          onPress={handleLogout}
+          className="mx-5 my-8 bg-red-500 py-4 rounded-lg items-center"
+        >
           <Text className="text-white font-semibold">Logout</Text>
         </Pressable>
       </ScrollView>

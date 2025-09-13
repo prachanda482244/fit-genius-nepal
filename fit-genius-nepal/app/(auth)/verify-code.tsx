@@ -1,15 +1,8 @@
-import {
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  Alert,
-  Keyboard,
-} from "react-native";
-import React, { useState, useRef } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { verifyCode } from "@/api/authApi";
 import { router, useLocalSearchParams } from "expo-router";
-import api from "../api";
+import React, { useRef, useState } from "react";
+import { Alert, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const VerifyCode = () => {
   const params = useLocalSearchParams();
@@ -53,14 +46,14 @@ const VerifyCode = () => {
   };
 
   const handleVerify = async () => {
-    const verificationCode = code.join("");
-    const { data } = await api.post("/auth/verify-email", {
-      email,
+    const verificationCode: string = code.join("");
+
+    const data = await verifyCode({
+      email: email as string,
       code: verificationCode,
     });
-    console.log(data, "data");
 
-    if (data?.status === 200) {
+    if (data) {
       Alert.alert("Success", data?.message);
       router.push("/");
     } else {

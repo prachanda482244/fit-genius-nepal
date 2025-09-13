@@ -1,24 +1,22 @@
 // app/register.tsx
+import { register } from "@/api/authApi";
+import InputField from "@/components/InputField";
+import { Ionicons } from "@expo/vector-icons";
+import { NavigationProp } from "@react-navigation/native";
+import * as ImagePicker from "expo-image-picker";
 import { useNavigation } from "expo-router";
 import React, { useState } from "react";
 import {
-  View,
-  Text,
+  ActivityIndicator,
+  Alert,
   Pressable,
   ScrollView,
-  TextInput,
-  Alert,
-  Image,
+  Text,
   TouchableOpacity,
-  ActivityIndicator,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import * as ImagePicker from "expo-image-picker";
-import { NavigationProp } from "@react-navigation/native";
-import InputField from "../components/InputField";
 import Toast from "react-native-toast-message";
-import { api } from "@/utils/api";
 
 // Define types
 type RootStackParamList = {
@@ -31,7 +29,7 @@ type UserData = {
   name: string;
   email: string;
   password: string;
-  profileImage: string | null;
+  profileImage?: string | null;
 };
 
 type ImageInfo = {
@@ -198,11 +196,14 @@ export default function RegisterPage() {
 
     try {
       // Simulate API call
-      const data = await api.register({ ...userData });
-      console.log(data, "register");
+      const user = await register({
+        name: userData?.name,
+        email: userData?.email,
+        password: userData?.password,
+      });
 
       // Success caseif
-      if (data.tokens) {
+      if (user) {
         Toast.show({
           type: "success",
           text1: "Registration",
@@ -211,12 +212,11 @@ export default function RegisterPage() {
 
         navigation.navigate("verify-code", { email: userData.email });
       }
-    } catch (error) {
+    } catch (error: any) {
       Toast.show({
         type: "error",
-        text1: "Registration",
-        text2: "Failed to register",
-        position: "bottom",
+        text1: "Register",
+        text2: error?.message || "Invalid email or password",
       });
     } finally {
       setIsLoading(false);

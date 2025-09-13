@@ -1,3 +1,4 @@
+// lib/api.ts
 import axios, {
   AxiosInstance,
   AxiosRequestConfig,
@@ -12,7 +13,6 @@ import {
   clearAuthData,
   saveToken,
   saveRefreshToken,
-  saveUserId,
 } from "../utils/secureStore";
 import {
   ApiResponse,
@@ -26,15 +26,18 @@ import {
   LoginResponse,
 } from "../types/api";
 
-const API_BASE_URL = "http://192.168.1.2:5000/api/v1"; // Replace with your API URL
+const API_BASE_URL = "http://192.168.1.6:5000/api/v1";
+
+// Request queue interface
+interface QueuedRequest {
+  resolve: (value: string | null) => void;
+  reject: (error: any) => void;
+}
 
 class ApiClient {
   private instance: AxiosInstance;
   private isRefreshing = false;
-  private failedQueue: Array<{
-    resolve: (value: string | null) => void;
-    reject: (error: any) => void;
-  }> = [];
+  private failedQueue: QueuedRequest[] = [];
 
   constructor() {
     this.instance = axios.create({
@@ -71,6 +74,7 @@ class ApiClient {
           _retry?: boolean;
         };
 
+        // Handle 401 errors (unauthorized)
         if (error.response?.status === 401 && !originalRequest._retry) {
           originalRequest._retry = true;
 
@@ -104,6 +108,8 @@ class ApiClient {
               this.isRefreshing = false;
               this.processQueue(refreshError, null);
               await clearAuthData();
+              // Use Zustand store to update auth state
+
               router.replace("/(auth)/login");
               return Promise.reject(refreshError);
             }
@@ -142,36 +148,43 @@ class ApiClient {
 
   // Auth methods
   async register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await this.instance.post<ApiResponse<RegisterResponse>>(
-      "/auth/register",
-      data
-    );
-
-    const { userId, tokens } = response.data.data;
-    await saveAuthData(tokens, userId);
-
-    return response.data;
+    try {
+      const response = await this.instance.post<ApiResponse<RegisterResponse>>(
+        "/auth/register",
+        data
+      );
+      const { userId, tokens } = response.data.data;
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    }
   }
 
   async login(data: LoginRequest): Promise<LoginResponse> {
-    const response = await this.instance.post<ApiResponse<LoginResponse>>(
-      "/auth/login",
-      data
-    );
-
-    const { userId, tokens, user } = response.data.data;
-    await saveAuthData(tokens, userId, user);
-
-    return response.data.data;
+    try {
+      const response = await this.instance.post<ApiResponse<LoginResponse>>(
+        "/auth/login",
+        data
+      );
+      return response.data.data;
+    } catch (error: any) {
+      throw new Error(
+        error.response?.data?.message || "Login failed. Please try again."
+      );
+    }
   }
 
   async logout(): Promise<void> {
     try {
-      await this.instance.post("/auth/logout");
+      const refreshToken = await getRefreshToken();
+      if (refreshToken) {
+        await this.instance.post("/auth/logout", { refreshToken });
+      }
     } catch (error) {
       console.warn("Logout API call failed, but clearing local data anyway");
-    } finally {
-      await clearAuthData();
     }
   }
 
@@ -180,7 +193,7 @@ class ApiClient {
       "/auth/verify-email",
       { code }
     );
-    // Handle verification response if needed
+    return response.data.data;
   }
 
   // Generic HTTP methods with type safety
